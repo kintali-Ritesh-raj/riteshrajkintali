@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Resume, Ritesh Raj Kintali</title>
+  <meta name="description" content="Resume of Ritesh Raj Kintali, AI engineer and web and app developer.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2314213D'/%3E%3Ctext x='6' y='25' font-family='Arial Narrow,Arial,sans-serif' font-size='24' font-weight='900' fill='%23fff'%3ER%3C/text%3E%3Ccircle cx='25' cy='22' r='3.5' fill='%23F97316'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>document.documentElement.classList.add('js');</script>
+  <script src="transition.js" defer></script>
+  <script src="resume.js" defer></script>
+</head>
+<body class="resume-page">
+  <!-- Starts covering the page in white with a loader; transition.js opens it through a
+       shrinking circle once resume.js says the page is ready. Hidden without JavaScript. -->
+  <div class="wipe is-covering" aria-hidden="true">
+    <div class="wipe-loader"><span class="wipe-ring"></span><span class="wipe-label">Opening resume</span></div>
+  </div>
+
+  <header class="resume-top">
+    <div class="wrap resume-top-inner">
+      <a class="resume-back" href="index.html" data-transition="Back to portfolio"><span aria-hidden="true">←</span> Back to portfolio</a>
+      <div class="resume-actions">
+        <!-- Downloads resume.pdf when it exists; otherwise resume.js turns this into
+             "Save as PDF", which prints this page to a PDF. PLACEHOLDER: add resume.pdf -->
+        <a class="resume-btn resume-btn--primary resume-download" href="resume.pdf" download="Ritesh-Raj-Kintali-Resume.pdf">Download PDF <span aria-hidden="true">↓</span></a>
+        <button class="resume-btn resume-print" type="button">Print <span aria-hidden="true">⎙</span></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="resume-main">
+    <div class="paper-stack">
+      <!--
+        The resume itself, written as HTML on a sheet of paper.
+        Edit the text below to update it. Anything in [brackets] is a placeholder.
+      -->
+      <article class="paper" aria-labelledby="cv-name">
+        <header class="cv-head">
+          <div>
+            <h1 id="cv-name">Ritesh Raj Kintali<span aria-hidden="true">.</span></h1>
+            <p class="cv-role">AI engineer · Web and app developer</p>
+          </div>
+          <ul class="cv-contact">
+            <li><a href="mailto:your-email@example.com">[your-email@example.com]</a></li>
+            <li>[+91 phone number]</li>
+            <li>[City, India]</li>
+            <li><a href="https://github.com/your-username">github.com/[your-username]</a></li>
+            <li><a href="https://www.linkedin.com/in/your-profile">linkedin.com/in/[your-profile]</a></li>
+          </ul>
+        </header>
+
+        <section class="cv-section">
+          <h2>Summary</h2>
+          <p>Web and app developer building practical tools for small businesses, and an AI engineer working on retrieval-augmented generation (RAG) projects. I work mostly with Python, Django, and Flutter. Looking for junior Python or backend roles.</p>
+        </section>
+
+        <section class="cv-section">
+          <h2>Experience</h2>
+          <div class="cv-item">
+            <div class="cv-item-head">
+              <h3>Software development intern <span>· Acroridge Techniques</span></h3>
+              <p class="cv-date">Jan – Mar 2026</p>
+            </div>
+            <ul>
+              <li>[What you worked on, in one line.]</li>
+              <li>[A second thing you built or improved, and the tools you used.]</li>
+            </ul>
+          </div>
+          <div class="cv-item">
+            <div class="cv-item-head">
+              <h3>Web developer intern <span>· Symbiosys Technologies</span></h3>
+              <p class="cv-date">Jun – Aug 2024</p>
+            </div>
+            <ul>
+              <li>[What you worked on, in one line.]</li>
+              <li>[A second thing you built or improved, and the tools you used.]</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="cv-section">
+          <h2>Projects</h2>
+          <div class="cv-item">
+            <div class="cv-item-head">
+              <h3>SLG Housekeeping website <span>· slghk.in</span></h3>
+              <p class="cv-date">Python · Django</p>
+            </div>
+            <ul>
+              <li>Built the business website, moved it from PHP to Django, and maintain it.</li>
+              <li>[One line on the result for the business.]</li>
+            </ul>
+          </div>
+          <div class="cv-item">
+            <div class="cv-item-head">
+              <h3>[RAG project name]</h3>
+              <p class="cv-date">Python · RAG · [LLM, vector database]</p>
+            </div>
+            <ul>
+              <li>[What it answers questions about, and who uses it.]</li>
+              <li>[How it works: e.g. chunking, embeddings, vector search, LLM answer.]</li>
+            </ul>
+          </div>
+          <div class="cv-item">
+            <div class="cv-item-head">
+              <h3>Daily worker attendance tracker</h3>
+              <p class="cv-date">Google Forms · Sheets · Apps Script</p>
+            </div>
+            <ul>
+              <li>Built a daily attendance system: a Google Form feeds a Google Sheet, and Apps Script [what your script does].</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="cv-section">
+          <h2>Education</h2>
+          <div class="cv-item">
+            <div class="cv-item-head">
+              <h3>B.Tech, Computer Science and Engineering <span>· GITAM</span></h3>
+              <p class="cv-date">2021 – 2025</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="cv-section">
+          <h2>Skills</h2>
+          <dl class="cv-skills">
+            <div><dt>Backend</dt><dd>Python, Django, PHP (maintenance and migration), [database]</dd></div>
+            <div><dt>AI</dt><dd>RAG, [LLM APIs], [embeddings and vector databases], [LangChain or LlamaIndex]</dd></div>
+            <div><dt>Frontend</dt><dd>HTML, CSS, JavaScript</dd></div>
+            <div><dt>Mobile</dt><dd>Flutter, Dart</dd></div>
+            <div><dt>Tools</dt><dd>Git and GitHub, Google Apps Script, Google Sheets and Forms</dd></div>
+          </dl>
+        </section>
+      </article>
+    </div>
+  </main>
+</body>
+</html>
