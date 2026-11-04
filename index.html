@@ -20,14 +20,20 @@
   <header class="site-header">
     <div class="wrap header-inner">
       <a class="wordmark" href="#top">Ritesh Raj Kintali<span aria-hidden="true">.</span></a>
-      <nav aria-label="Primary">
-        <ul class="nav-list">
-          <li><a href="#about">About</a></li>
-          <li><a href="#work">Work</a></li>
-          <li><a href="#skills">Skills</a></li>
-          <li><a href="#contact">Contact</a></li>
-        </ul>
-      </nav>
+      <div class="header-nav">
+        <nav aria-label="Primary">
+          <ul class="nav-list">
+            <li><a href="#about">About</a></li>
+            <li><a href="#work">Work</a></li>
+            <li><a href="#skills">Skills</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </nav>
+        <!-- Breaks everything on screen into pieces that fall to the floor, drops the
+             character on top, then rebuilds the page (script.js) -->
+        <button class="break-btn" type="button">Don't press <span aria-hidden="true">↓</span></button>
+        <p class="break-status sr-only" aria-live="polite"></p>
+      </div>
     </div>
   </header>
 
@@ -68,7 +74,11 @@
             <g class="h-lean h-pocket"><path d="M150 122 Q178 150 170 172 L144 190" stroke="#f97316" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="146" cy="189" r="12" fill="#ea6a0c"/></g>
             <g class="h-wave"><path d="M150 122 Q178 114 182 86" stroke="#f97316" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="182" cy="86" r="13" fill="#ea6a0c"/><circle cx="184" cy="76" r="7.5" fill="#111827"/><ellipse cx="185" cy="62" rx="11" ry="14" transform="rotate(0 185 62)" fill="#f1b48a"/><path d="M176.5 54 L173.5 41 M182 50 L180.5 36 M188 50 L189 36 M193.5 54 L196.5 42" stroke="#f1b48a" stroke-width="4.5" stroke-linecap="round"/><path d="M175 68 L165 60" stroke="#f1b48a" stroke-width="5" stroke-linecap="round"/></g>
             <g class="h-lean h-drape"><path d="M74 118 Q40 100 4 102" stroke="#f97316" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M4 104 Q12 118 28 126" stroke="#f97316" stroke-width="22" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="29" cy="126" r="11.5" fill="#ea6a0c"/><ellipse cx="36" cy="142" rx="10" ry="15" transform="rotate(-14 36 142)" fill="#f1b48a"/><path d="M29.5 150 L27.5 160 M34 152.5 L33 163.5 M38.5 153 L38.5 164 M43 150 L43.5 160" stroke="#f1b48a" stroke-width="3.6" stroke-linecap="round"/></g>
-            <g class="char-head"><use href="#rrk-head" x="23" y="-27" width="152" height="142.5"/></g>
+            <g class="hurt-only">
+              <g transform="rotate(38 17 115)"><rect x="6" y="108" width="22" height="14" rx="3" fill="#ffffff" stroke="#c9ced8" stroke-width="1.5"/><path d="M12 108 L12 122 M19 108 L19 122" stroke="#e5e7eb" stroke-width="1.5"/></g>
+              <g transform="rotate(30 126 284)"><rect x="114" y="280" width="24" height="8" rx="3" fill="#f3d2ab" stroke="#d7ae84" stroke-width="1"/><rect x="122" y="272" width="8" height="24" rx="3" fill="#f3d2ab" stroke="#d7ae84" stroke-width="1"/></g>
+            </g>
+            <g class="char-head"><use href="#rrk-head" x="23" y="-27" width="152" height="142.5"/><use class="hurt-only" href="#rrk-head-hurt" x="23" y="-27" width="152" height="142.5"/></g>
           </svg>
 
           <!--
@@ -414,6 +424,18 @@
       <path d="M66 98 Q80 113 94 98 Q80 102 66 98 Z" fill="#7f1d1d"/>
       <path d="M68 99 Q80 103 92 99 L90.5 102 Q80 105.5 69.5 102 Z" fill="#ffffff"/>
     </symbol>
+    <!-- Injuries drawn on the same grid as rrk-head. Placed over each head with a <use class="hurt-only">,
+         shown after the "Don't press" crash (class is-hurt on <html>) until the page is reloaded. -->
+    <symbol id="rrk-head-hurt" viewBox="0 0 160 150">
+        <ellipse cx="67" cy="82" rx="10" ry="6.5" fill="#7c3aed" opacity="0.22"/>
+        <path d="M43 52 Q80 33 119 45 L120 58 Q80 46 44 65 Z" fill="#ffffff" stroke="#c9ced8" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M54 52 L57 60 M66 46 L68 54 M100 43 L101 51" stroke="#e5e7eb" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M118 48 L132 40 L131 54 Z M119 55 L133 60 L122 65 Z" fill="#ffffff" stroke="#c9ced8" stroke-width="1.5" stroke-linejoin="round"/>
+        <g transform="rotate(-24 103 92)">
+          <rect x="91" y="88.5" width="24" height="8" rx="3" fill="#f3d2ab" stroke="#d7ae84" stroke-width="1"/>
+          <rect x="99" y="80.5" width="8" height="24" rx="3" fill="#f3d2ab" stroke="#d7ae84" stroke-width="1"/>
+        </g>
+    </symbol>
   </svg>
 
   <!-- Guide: once the hero is out of view he plays hide-and-seek. He ducks out while you
@@ -514,6 +536,7 @@
         </g>
         <g class="g-head">
           <use href="#rrk-head" x="0" y="-6" width="160" height="150"/>
+          <use class="hurt-only" href="#rrk-head-hurt" x="0" y="-6" width="160" height="150"/>
         </g>
       </svg>
     </span>

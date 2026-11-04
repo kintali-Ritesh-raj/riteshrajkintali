@@ -1823,3 +1823,189 @@ html:not(.js) .wipe {
     text-decoration: none;
   }
 }
+
+/* ------------------------------------------------------------
+   "Don't press" button (header, under Contact) and the crash it starts.
+   script.js breaks everything on screen into pieces that fall onto a
+   navy floor, drops the character on the pile with a burst of shards,
+   then rewinds the pieces back into place.
+------------------------------------------------------------ */
+.header-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.6rem;
+}
+
+.break-btn {
+  padding: 0.4rem 0.7rem;
+  border: 2px solid var(--navy);
+  background: var(--orange);
+  color: var(--navy);
+  box-shadow: 3px 3px 0 var(--navy);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 200ms var(--ease), box-shadow 200ms var(--ease);
+}
+
+.break-btn:hover {
+  animation: break-wiggle 300ms ease-in-out 2;
+}
+
+.break-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--navy);
+}
+
+.break-btn[aria-disabled="true"] {
+  cursor: wait;
+}
+
+@keyframes break-wiggle {
+  25% { transform: rotate(-4deg); }
+  75% { transform: rotate(4deg); }
+}
+
+html:not(.js) .break-btn {
+  display: none;
+}
+
+/* Letters split apart for the crash: inline-block so they can spin on their own */
+.shard-ltr {
+  display: inline-block;
+}
+
+/* While it's happening, the hide-and-seek guide stays away */
+.is-crashing .guide {
+  visibility: hidden;
+}
+
+.crash-floor {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 90;
+  height: var(--floor, 3.5rem);
+  border-top: 5px solid var(--orange);
+  background: var(--navy);
+  pointer-events: none;
+}
+
+.crash-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  background: var(--paper);
+  pointer-events: none;
+}
+
+.shard {
+  position: fixed;
+  z-index: 93;
+  width: var(--size, 14px);
+  height: var(--size, 14px);
+  pointer-events: none;
+}
+
+.shard--navy { background: var(--navy); }
+.shard--orange { background: var(--orange); }
+.shard--a { clip-path: polygon(0 0, 100% 30%, 40% 100%); }
+.shard--b { clip-path: polygon(20% 0, 100% 100%, 0 70%); }
+.shard--c { clip-path: polygon(0 20%, 80% 0, 100% 100%, 30% 80%); }
+
+/* The "H" is its own piece in the crash, so it must be able to move and spin */
+.hero-h {
+  display: inline-block;
+}
+
+/* Injuries: bandages, plasters and a bruise, drawn into the character but hidden until
+   the crash adds .is-hurt to <html>. They stay until the page is reloaded. */
+.hurt-only {
+  display: none;
+}
+
+.is-hurt .hurt-only {
+  display: inline;
+}
+
+/* Speech bubble that follows the character during the crash (placed by script.js) */
+.crash-bubble {
+  position: fixed;
+  z-index: 96;
+  width: max-content;
+  max-width: min(16rem, 80vw);
+  padding: 0.55rem 0.8rem;
+  border: 2px solid var(--navy);
+  background: var(--orange);
+  color: var(--navy);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.4;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -100%) scale(0.6);
+  transform-origin: 50% 100%;
+  transition: opacity 200ms ease, transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.crash-bubble::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -8px;
+  border: 8px solid transparent;
+  border-top-color: var(--navy);
+}
+
+.crash-bubble.is-shown {
+  opacity: 1;
+  transform: translate(-50%, -100%);
+}
+
+/* Dizzy stars circling his head after he hits the floor */
+.crash-stars {
+  position: fixed;
+  z-index: 95;
+  width: var(--ring, 5rem);
+  height: calc(var(--ring, 5rem) * 0.45);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.crash-stars span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -0.6em 0 0 -0.5em;
+  color: var(--orange);
+  font-size: 1.4rem;
+  line-height: 1;
+  text-shadow: 0 0 0 var(--navy), 1px 1px 0 var(--navy);
+  animation: crash-orbit 900ms linear infinite;
+}
+
+.crash-stars span:nth-child(2) { animation-delay: -300ms; }
+.crash-stars span:nth-child(3) { animation-delay: -600ms; }
+
+/* An ellipse around the head: x swings wide, y swings short */
+@keyframes crash-orbit {
+  0% { transform: translate(calc(var(--ring, 5rem) * 0.5), 0) scale(1); }
+  25% { transform: translate(0, calc(var(--ring, 5rem) * 0.2)) scale(1.15); }
+  50% { transform: translate(calc(var(--ring, 5rem) * -0.5), 0) scale(1); }
+  75% { transform: translate(0, calc(var(--ring, 5rem) * -0.2)) scale(0.8); }
+  100% { transform: translate(calc(var(--ring, 5rem) * 0.5), 0) scale(1); }
+}
+
+/* Pieces flying sideways must not widen the page while the crash plays */
+html.is-crashing,
+html.is-crashing body {
+  overflow-x: hidden;
+}
