@@ -570,13 +570,10 @@ dt,
   display: none;
 }
 
-.guide[data-pose="walk"] .g-arm-l-down,
-.guide[data-pose="walk"] .g-arm-r-down,
 .guide[data-pose="wave"] .g-arm-l-down,
 .guide[data-pose="wave"] .g-arm-r-wave,
 .guide[data-pose="point"] .g-arm-l-hip,
 .guide[data-pose="point"] .g-arm-r-point,
-.guide[data-pose="laptop"] .g-laptop,
 .guide[data-pose="cheer"] .g-arm-l-up,
 .guide[data-pose="cheer"] .g-arm-r-up {
   display: inline;
@@ -585,11 +582,6 @@ dt,
 .guide[data-pose="point"] {
   --look-x: 3.5px;
   --head-tilt: 5deg;
-}
-
-.guide[data-pose="laptop"] {
-  --look-y: 3.5px;
-  --head-tilt: 4deg;
 }
 
 .guide[data-pose="wave"] {
@@ -620,21 +612,6 @@ dt,
   transition: transform 300ms var(--ease);
 }
 
-/* Walking while you scroll */
-.guide[data-pose="walk"] .g-leg-l,
-.guide[data-pose="walk"] .g-arm-r {
-  animation: g-swing 280ms ease-in-out infinite alternate;
-}
-
-.guide[data-pose="walk"] .g-leg-r,
-.guide[data-pose="walk"] .g-arm-l {
-  animation: g-swing 280ms ease-in-out infinite alternate-reverse;
-}
-
-.guide[data-pose="walk"] svg {
-  animation: g-bob 140ms ease-in-out infinite alternate;
-}
-
 /* Section poses play a few times, then hold */
 .guide[data-pose="wave"] .g-arm-r-wave {
   animation: g-wave 300ms ease-in-out 6 alternate;
@@ -652,19 +629,6 @@ dt,
   animation: g-cheer 300ms ease-in-out 6 alternate-reverse;
 }
 
-.guide.is-hopping .guide-figure svg {
-  animation: g-hop 400ms var(--ease);
-}
-
-@keyframes g-swing {
-  from { transform: rotate(-14deg); }
-  to { transform: rotate(14deg); }
-}
-
-@keyframes g-bob {
-  to { translate: 0 -3px; }
-}
-
 @keyframes g-wave {
   from { transform: rotate(-14deg); }
   to { transform: rotate(14deg); }
@@ -677,10 +641,6 @@ dt,
 @keyframes g-cheer {
   from { transform: rotate(-8deg); }
   to { transform: rotate(8deg); }
-}
-
-@keyframes g-hop {
-  40% { transform: translateY(-16px); }
 }
 
 /* Speech bubble, placed next to his head for each side (percentages of his size) */
@@ -2004,8 +1964,251 @@ html:not(.js) .break-btn {
   100% { transform: translate(calc(var(--ring, 5rem) * 0.5), 0) scale(1); }
 }
 
-/* Pieces flying sideways must not widen the page while the crash plays */
+/* While the crash plays */
+/* Pieces flying sideways must not widen the page (clip, unlike hidden, doesn't
+   turn <body> into a scroll box) */
 html.is-crashing,
 html.is-crashing body {
-  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+/* Hover fades would fight the falling pieces and the hidden backgrounds */
+.is-crashing :is(.site-header, main, .site-footer),
+.is-crashing :is(.site-header, main, .site-footer) *,
+.is-crashing :is(.site-header, main, .site-footer) *::before,
+.is-crashing :is(.site-header, main, .site-footer) *::after {
+  transition: none !important;
+}
+
+/* The orange hover sweep on a project row would stay behind (it sticks after a tap on phones) */
+.is-crashing .work-toggle::before {
+  transform: scaleX(0) !important;
+}
+
+/* Letters in an open case study must be able to fall out of their panel */
+.is-crashing .work-item.is-open .work-panel-inner {
+  overflow: visible;
+}
+
+.is-crashing .preview {
+  visibility: hidden;
+}
+
+/* Copies of coloured boxes and divider lines that fall during the crash (script.js).
+   Behind the page content, so the letters fly out in front of their own boxes. */
+.crash-slab {
+  position: fixed;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Letters of one word stay on one line while the text is split for the crash */
+.shard-word {
+  white-space: nowrap;
+}
+
+/* Phones: "Don't press" sits on the same row as the name, the menu goes below */
+@media (max-width: 40rem) {
+  .header-inner {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 0.9rem 1rem;
+  }
+
+  .header-nav {
+    display: contents;
+  }
+
+  .header-nav nav {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .break-btn {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
+
+/* ------------------------------------------------------------
+   Angry, after the "Don't press" crash (class is-angry on <html>,
+   until the page is reloaded): he stops leaning on the "H" and stands
+   on his own beside it, hands on hips, stomping, steam coming off his
+   head, with "Don't press the button!" above him.
+------------------------------------------------------------ */
+.angry-only,
+.h-angry,
+.h-steam {
+  display: none;
+}
+
+.is-angry .angry-only,
+.is-angry .h-angry,
+.is-angry .h-steam,
+.is-angry .h-leg {
+  display: inline;
+}
+
+.is-angry .calm-only,
+.is-angry .h-lean,
+.is-angry .h-wave {
+  display: none;
+}
+
+/* A step away from the "H" so he isn't touching it */
+.is-angry .char-back {
+  translate: 16% 0;
+  transform-origin: 50% 100%;
+  animation: angry-stomp 2400ms ease-in-out infinite;
+}
+
+.is-crashing .char-back {
+  animation: none;
+}
+
+@keyframes angry-stomp {
+  0%, 24%, 100% { rotate: 0deg; }
+  4% { rotate: -3deg; }
+  8% { rotate: 3deg; }
+  12% { rotate: -3deg; }
+  16% { rotate: 2deg; }
+}
+
+.h-steam {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: angry-steam 1400ms ease-out infinite;
+}
+
+.h-steam-r {
+  animation-delay: -700ms;
+}
+
+@keyframes angry-steam {
+  from { opacity: 0.95; transform: translateY(0) scale(0.6); }
+  to { opacity: 0; transform: translateY(-28px) scale(1.35); }
+}
+
+.angry-bubble {
+  position: absolute;
+  z-index: 4;
+  padding: 0.55rem 0.85rem;
+  border: 3px solid var(--navy);
+  background: var(--orange);
+  color: var(--navy);
+  box-shadow: 4px 4px 0 var(--navy);
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 2.2vw, 1.4rem);
+  font-weight: 900;
+  font-stretch: 70%;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translate(-50%, -100%) rotate(-3deg);
+  animation: angry-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1), angry-shout 4000ms ease-in-out 1s infinite;
+}
+
+.angry-bubble::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: var(--tail, 50%);
+  margin-left: -9px;
+  border: 9px solid transparent;
+  border-top-color: var(--navy);
+}
+
+@keyframes angry-pop {
+  from { transform: translate(-50%, -100%) scale(0) rotate(-14deg); }
+  to { transform: translate(-50%, -100%) scale(1) rotate(-3deg); }
+}
+
+@keyframes angry-shout {
+  0%, 84%, 100% { transform: translate(-50%, -100%) rotate(-3deg); }
+  87% { transform: translate(-50%, -100%) rotate(4deg) scale(1.06); }
+  90% { transform: translate(-50%, -100%) rotate(-4deg) scale(1.06); }
+  93% { transform: translate(-50%, -100%) rotate(3deg); }
+  96% { transform: translate(-50%, -100%) rotate(-2deg); }
+}
+
+/* ------------------------------------------------------------
+   Crying, from the fourth "Don't press" crash (class is-sad on <html>,
+   until the page is reloaded): tears streaming down, hands clasped,
+   shoulders heaving, begging "Please… please don't do it."
+------------------------------------------------------------ */
+.sad-only,
+.h-sad {
+  display: none;
+}
+
+.is-sad .sad-only,
+.is-sad .h-sad,
+.is-sad .h-leg {
+  display: inline;
+}
+
+.is-sad .calm-only,
+.is-sad .h-lean,
+.is-sad .h-wave {
+  display: none;
+}
+
+.is-sad .char-back {
+  translate: 16% 0;
+  transform-origin: 50% 100%;
+  animation: sad-sob 900ms ease-in-out infinite;
+}
+
+/* the crash animation takes over the character while it plays */
+.is-crashing .char-back {
+  animation: none;
+}
+
+@keyframes sad-sob {
+  0%, 100% { scale: 1 1; }
+  50% { scale: 1.015 0.982; }
+}
+
+/* Tears run down in a stream, and a drop falls off each chin */
+.h-tear {
+  stroke-dasharray: 9 7;
+  animation: tear-flow 700ms linear infinite;
+}
+
+@keyframes tear-flow {
+  to { stroke-dashoffset: -32; }
+}
+
+.h-drop {
+  transform-box: fill-box;
+  animation: tear-drop 1100ms ease-in infinite;
+}
+
+.h-drop-r {
+  animation-delay: -550ms;
+}
+
+@keyframes tear-drop {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(46px) scale(0.6); }
+}
+
+/* His begging bubble: navy, softer, trembling instead of shouting */
+.angry-bubble.is-pleading {
+  background: var(--navy);
+  color: var(--paper);
+  box-shadow: 4px 4px 0 #60a5fa;
+  font-stretch: 80%;
+  text-transform: none;
+  animation: angry-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1), plead-tremble 2600ms ease-in-out 1s infinite;
+}
+
+@keyframes plead-tremble {
+  0%, 70%, 100% { transform: translate(-50%, -100%) rotate(-2deg); }
+  74% { transform: translate(-50%, -100%) rotate(-1deg) translateX(-2px); }
+  78% { transform: translate(-50%, -100%) rotate(-3deg) translateX(2px); }
+  82% { transform: translate(-50%, -100%) rotate(-1deg) translateX(-2px); }
+  86% { transform: translate(-50%, -100%) rotate(-2deg); }
 }

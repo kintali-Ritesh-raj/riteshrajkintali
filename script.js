@@ -82,6 +82,44 @@
     charBack.style.width = width + 'px';
     charBack.style.left = left + 'px';
     charBack.style.top = top + 'px';
+    placeAngryBubble();
+  }
+
+  // After the "Don't press" crash he's angry: "Don't press the button!" sits above his head,
+  // kept inside the hero so it never runs off the edge of the screen
+  function placeAngryBubble() {
+    var bubble = stage && stage.querySelector('.angry-bubble');
+    if (!bubble) return;
+    var head = document.querySelector('.char-head').getBoundingClientRect();
+    var box = stage.getBoundingClientRect();
+    var half = bubble.offsetWidth / 2;
+    var centre = head.left + head.width / 2 - box.left;
+    var x = Math.min(stage.clientWidth - half - 4, Math.max(half + 4, centre));
+    bubble.style.left = x + 'px';
+    bubble.style.top = head.top - box.top - 6 + 'px';
+    // point the tail at his head even when the bubble had to shift sideways
+    bubble.style.setProperty('--tail', Math.min(90, Math.max(10, 50 + ((centre - x) / bubble.offsetWidth) * 100)) + '%');
+  }
+
+  // How he reacts depends on how many times "Don't press" has been pressed since the
+  // page loaded: angrier on presses 1 to 3, then he breaks down crying from press 4 on
+  var ANGRY_LINES = ["Don't press the button!", "I said DON'T press it!", 'Seriously?! Stop pressing it!'];
+  var SAD_LINE = "Please… please don't do it.";
+
+  function getUpset(presses) {
+    var crying = presses > ANGRY_LINES.length;
+    var root = document.documentElement;
+    root.classList.toggle('is-angry', !crying);
+    root.classList.toggle('is-sad', crying);
+    var old = stage.querySelector('.angry-bubble');
+    if (old) old.remove();
+    var bubble = document.createElement('p');
+    bubble.className = 'angry-bubble' + (crying ? ' is-pleading' : '');
+    bubble.setAttribute('aria-hidden', 'true');
+    bubble.textContent = crying ? SAD_LINE : ANGRY_LINES[presses - 1];
+    stage.appendChild(bubble);
+    // wait a frame so the step away from the "H" has been applied before measuring
+    requestAnimationFrame(placeAngryBubble);
   }
 
   var resizeFrame;
@@ -143,6 +181,16 @@
   }
 
   var introStarted = false;
+  var introDone = false;
+  var introBtn = document.querySelector('.break-btn');
+  if (introBtn) introBtn.setAttribute('aria-disabled', 'true');
+
+  // Pressing "Don't press" mid-intro would freeze the letters and the moonwalk halfway,
+  // so the button waits until both are finished
+  function finishIntro() {
+    introDone = true;
+    if (introBtn) introBtn.setAttribute('aria-disabled', 'false');
+  }
 
   function runIntro() {
     if (introStarted || !nameEl) return;
@@ -151,6 +199,7 @@
     if (reduceMotion) {
       showFinalName();
       stage.classList.add('char-ready');
+      finishIntro();
       return;
     }
 
@@ -177,7 +226,10 @@
   // leans on it and waves
 
   function walkIn() {
-    if (!stage || !charBack) return;
+    if (!stage || !charBack) {
+      finishIntro();
+      return;
+    }
 
     var distance = parseFloat(charBack.style.left) + charBack.getBoundingClientRect().width + 24;
     var duration = Math.min(2600, Math.max(1300, distance * 2.4));
@@ -199,6 +251,7 @@
       arrived = true;
       chars.forEach(function (svg) { svg.style.transition = ''; });
       stage.classList.remove('is-moonwalk');
+      finishIntro();
       setTimeout(wave, 300);
     }
     charBack.addEventListener('transitionend', function (e) {
@@ -223,6 +276,8 @@
   }
 
   function wave() {
+    var root = document.documentElement;
+    if (root.classList.contains('is-angry') || root.classList.contains('is-sad')) return;
     if (reduceMotion || stage.classList.contains('is-waving')) return;
     if (stage.classList.contains('is-moonwalk') || !stage.classList.contains('char-ready')) return;
     stage.classList.add('is-waving');
@@ -507,7 +562,7 @@
      2. Everything on screen breaks into pieces (big words split into letters, the "H"
         included) that tumble down with gravity, bounce on the floor and pile up.
         The character leaning on the "H" falls too: he tumbles and lands lying down.
-     3. On impact: another shake, a burst of shards, dizzy crashStars around his head, and
+     3. On impact: another shake, a burst of shards, dizzy stars around his head, and
         he gets hurt (bandages, plasters, a bruise).
      4. Everything rewinds back into place. He's back leaning on the "H", still
         bandaged, and stays that way until the page is reloaded. ---- */
@@ -515,17 +570,14 @@
 
   if (breakBtn && 'animate' in document.documentElement) {
     var breakStatus = document.querySelector('.break-status');
-    var PIECES = [
-      '.wordmark', '.nav-list li', '.break-btn',
-      '.hero-top > span', '.hero-keep .shard-ltr', '.hero-h', '.hero-dots span',
-      '.hero-lede', '.hero-links li', '.cta-inner > span',
-      '.section-num', '.section-head h2 .shard-ltr', '.statement', '.timeline > div',
-      '.work-intro p', '.work-all', '.work-heading', '.case-role', '.case-link', '.case-body > div',
-      '.skills > div', '.contact-lede', '.contact-email .shard-ltr', '.contact-links li',
-      '.footer-inner p'
-    ].join(',');
-    var SPLIT = '.hero-keep, .section-head h2, .contact-email';
+    // Everything inside these breaks apart
+    var CRASH_ROOTS = '.site-header, main, .site-footer';
+    // Non-text pieces that fall whole
+    var WHOLE_PIECES = '.hero-h, .hero-dots span, .status-dot, .work-icon';
+    // Text that isn't split into letters
+    var SKIP_TEXT = 'svg, .sr-only, .guide, .preview, .hero-h';
     var crashing = false;
+    var presses = 0;
     var crashTimers = [];
     var pieceAnims = [];
     var charAnim = null;
@@ -556,37 +608,48 @@
       return r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < window.innerHeight;
     }
 
-    // Wrap each letter of the big words so they can fly apart on their own
-    function crashSplitLetters() {
-      document.querySelectorAll(SPLIT).forEach(function (el) {
-        var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+    // Wrap every letter of the on-screen text in its own span so it can fly off alone.
+    // Letters of a word sit inside a no-wrap span, so words never break across lines.
+    function crashSplitText() {
+      var nodes = [];
+      document.querySelectorAll(CRASH_ROOTS).forEach(function (root) {
+        var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
           acceptNode: function (node) {
-            return node.parentNode.closest('.hero-h, .shard-ltr, .sr-only') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
+            var parent = node.parentNode;
+            if (!node.textContent.trim() || parent.closest(SKIP_TEXT) || !crashOnScreen(parent)) {
+              return NodeFilter.FILTER_REJECT;
+            }
+            return NodeFilter.FILTER_ACCEPT;
           }
         });
-        var nodes = [];
         while (walker.nextNode()) nodes.push(walker.currentNode);
-        nodes.forEach(function (node) {
-          var frag = document.createDocumentFragment();
-          node.textContent.split('').forEach(function (ch) {
-            if (ch.trim() === '') {
-              frag.appendChild(document.createTextNode(ch));
-              return;
-            }
-            var span = document.createElement('span');
-            span.className = 'shard-ltr';
-            span.textContent = ch;
-            frag.appendChild(span);
+      });
+      nodes.forEach(function (node) {
+        var frag = document.createDocumentFragment();
+        node.textContent.split(/(\s+)/).forEach(function (part) {
+          if (!part) return;
+          if (!part.trim()) {
+            frag.appendChild(document.createTextNode(part));
+            return;
+          }
+          var word = document.createElement('span');
+          word.className = 'shard-word';
+          Array.prototype.forEach.call(part, function (ch) {
+            var letter = document.createElement('span');
+            letter.className = 'shard-ltr';
+            letter.textContent = ch;
+            word.appendChild(letter);
           });
-          node.parentNode.replaceChild(frag, node);
+          frag.appendChild(word);
         });
+        node.parentNode.replaceChild(frag, node);
       });
     }
 
-    function crashJoinLetters() {
-      document.querySelectorAll('.shard-ltr').forEach(function (span) {
-        var parent = span.parentNode;
-        parent.replaceChild(document.createTextNode(span.textContent), span);
+    function crashJoinText() {
+      document.querySelectorAll('.shard-word').forEach(function (word) {
+        var parent = word.parentNode;
+        parent.replaceChild(document.createTextNode(word.textContent), word);
         parent.normalize();
       });
     }
@@ -670,11 +733,84 @@
       ], { duration: 1300, delay: 150, fill: 'forwards' });
     }
 
+    // Coloured boxes (the orange bar, buttons, the navy footer) and divider lines belong to
+    // containers that don't move, so each visible one is copied into a slab that can fall,
+    // and the real background/border is hidden until the page rebuilds
+    var hiddenStyles = [];
+    var TRANSPARENT = /^(transparent|rgba\(0, 0, 0, 0\))$/;
+
+    function hideStyle(el, prop, value) {
+      hiddenStyles.push([el, prop, el.style[prop]]);
+      el.style[prop] = value;
+    }
+
+    function crashSlab(left, top, width, height, styles) {
+      var slab = crashEl('crash-slab');
+      slab.style.left = left + 'px';
+      slab.style.top = top + 'px';
+      slab.style.width = width + 'px';
+      slab.style.height = height + 'px';
+      Object.keys(styles).forEach(function (prop) { slab.style[prop] = styles[prop]; });
+      return slab;
+    }
+
+    function crashMakeSlabs() {
+      var slabs = [];
+      document.querySelectorAll(CRASH_ROOTS).forEach(function (root) {
+        [root].concat(Array.prototype.slice.call(root.querySelectorAll('*'))).forEach(function (el) {
+          if (el.closest('svg, .guide, .sr-only, .shard-word') || el.closest(WHOLE_PIECES)) return;
+          if (!crashOnScreen(el)) return;
+          var cs = getComputedStyle(el);
+          var r = el.getBoundingClientRect();
+          var hasBg = !TRANSPARENT.test(cs.backgroundColor);
+          var hasShadow = cs.boxShadow !== 'none';
+          if (hasBg || hasShadow) {
+            slabs.push(crashSlab(r.left, r.top, r.width, r.height, {
+              background: hasBg ? cs.backgroundColor : 'transparent',
+              boxShadow: cs.boxShadow,
+              borderRadius: cs.borderRadius
+            }));
+            if (hasBg) hideStyle(el, 'backgroundColor', 'transparent');
+            if (hasShadow) hideStyle(el, 'boxShadow', 'none');
+          }
+          [
+            ['Top', r.left, r.top, r.width, 'h'],
+            ['Bottom', r.left, r.bottom, r.width, 'h'],
+            ['Left', r.left, r.top, r.height, 'v'],
+            ['Right', r.right, r.top, r.height, 'v']
+          ].forEach(function (b) {
+            var side = b[0];
+            var size = parseFloat(cs['border' + side + 'Width']);
+            if (!size || cs['border' + side + 'Style'] === 'none' || TRANSPARENT.test(cs['border' + side + 'Color'])) return;
+            var color = cs['border' + side + 'Color'];
+            if (b[4] === 'h') {
+              slabs.push(crashSlab(b[1], side === 'Bottom' ? b[2] - size : b[2], b[3], size, { background: color }));
+            } else {
+              slabs.push(crashSlab(side === 'Right' ? b[1] - size : b[1], b[2], size, b[3], { background: color }));
+            }
+            hideStyle(el, 'border' + side + 'Color', 'transparent');
+          });
+        });
+      });
+      return slabs;
+    }
+
+    function crashRestoreSlabs() {
+      for (var i = hiddenStyles.length - 1; i >= 0; i--) {
+        hiddenStyles[i][0].style[hiddenStyles[i][1]] = hiddenStyles[i][2];
+      }
+      hiddenStyles = [];
+      document.querySelectorAll('.crash-slab').forEach(function (slab) { slab.remove(); });
+    }
+
     function collapse(floorTop) {
-      crashSplitLetters();
-      pieceAnims = Array.prototype.filter.call(document.querySelectorAll(PIECES), function (el) {
-        return !el.closest('.guide, .sr-only') && crashOnScreen(el);
-      }).map(function (el) { return crashFall(el, floorTop); });
+      var slabs = crashMakeSlabs();
+      crashSplitText();
+      var letters = Array.prototype.filter.call(document.querySelectorAll('.shard-ltr'), crashOnScreen);
+      var whole = Array.prototype.filter.call(document.querySelectorAll(WHOLE_PIECES), function (el) {
+        return !el.closest('.guide') && crashOnScreen(el);
+      });
+      pieceAnims = letters.concat(whole, slabs).map(function (el) { return crashFall(el, floorTop); });
       charAnim = crashOnScreen(charBack) ? fallCharacter(floorTop) : null;
     }
 
@@ -685,7 +821,7 @@
       });
     }
 
-    // Bubble and dizzy crashStars follow the character's head wherever it ended up
+    // Bubble and dizzy stars follow the character's head wherever it ended up
     var crashBubble = null;
     var crashStars = null;
 
@@ -694,7 +830,7 @@
     }
 
     function crashSay(text) {
-      if (!crashBubble) crashBubble = crashEl('crash-crashBubble');
+      if (!crashBubble) crashBubble = crashEl('crash-bubble');
       var head = crashHeadBox();
       var x = Math.min(window.innerWidth - 140, Math.max(140, head.left + head.width / 2));
       crashBubble.style.left = x + 'px';
@@ -709,7 +845,7 @@
 
     function crashShowStars() {
       var head = crashHeadBox();
-      crashStars = crashEl('crash-crashStars');
+      crashStars = crashEl('crash-stars');
       crashStars.innerHTML = '<span>★</span><span>★</span><span>★</span>';
       crashStars.style.setProperty('--ring', Math.max(head.width, head.height) * 1.2 + 'px');
       crashStars.style.left = head.left + head.width / 2 + 'px';
@@ -721,8 +857,9 @@
       if (charAnim) charAnim.cancel();
       pieceAnims = [];
       charAnim = null;
-      crashJoinLetters();
-      document.querySelectorAll('.crash-floor, .crash-flash, .shard, .crash-crashStars').forEach(function (el) { el.remove(); });
+      crashJoinText();
+      crashRestoreSlabs();
+      document.querySelectorAll('.crash-floor, .crash-flash, .shard, .crash-stars').forEach(function (el) { el.remove(); });
       crashStars = null;
       document.documentElement.classList.remove('is-crashing');
       lockScroll(false);
@@ -739,11 +876,14 @@
       crashTimers = [];
       crashHush();
       if (breakStatus) breakStatus.textContent = 'You pressed it. The page fell apart.';
+      presses++;
+      var oldShout = stage.querySelector('.angry-bubble');
+      if (oldShout) oldShout.remove();
 
       var floor = crashEl('crash-floor');
       var floorTop = floor.getBoundingClientRect().top;
 
-      // Reduced motion: nothing falls; he just gets bandaged
+      // Reduced motion: nothing falls; he just gets bandaged, then angry
       if (reduceMotion) {
         floor.remove();
         document.documentElement.classList.add('is-hurt');
@@ -751,6 +891,7 @@
         crashLater(function () {
           crashHush();
           crashFinish();
+          getUpset(presses);
           crashing = false;
           breakBtn.setAttribute('aria-disabled', 'false');
         }, 3500);
@@ -790,8 +931,8 @@
 
       crashLater(function () {
         crashFinish();
-        if (breakStatus) breakStatus.textContent = 'The page is back together. The character is bandaged up.';
-        if (crashOnScreen(charBack)) crashSay("I'm okay! Just a few scratches.");
+        getUpset(presses);
+        if (breakStatus) breakStatus.textContent = 'The page is back together. The character says: ' + stage.querySelector('.angry-bubble').textContent;
       }, 5600);
 
       crashLater(function () {
@@ -802,7 +943,7 @@
     }
 
     breakBtn.addEventListener('click', function () {
-      if (!crashing) crash();
+      if (!crashing && introDone) crash();
     });
   }
 
