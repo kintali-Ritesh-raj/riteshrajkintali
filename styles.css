@@ -1835,6 +1835,42 @@ html:not(.js) .break-btn {
   display: none;
 }
 
+/* "Sound on/off" sits beside "Don't press": same shape, but quieter */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sound-btn {
+  padding: 0.4rem 0.7rem;
+  border: 2px solid var(--navy);
+  background: transparent;
+  color: var(--navy);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 200ms var(--ease), color 200ms var(--ease);
+}
+
+.sound-btn:hover {
+  background: var(--navy);
+  color: var(--orange);
+}
+
+.sound-btn[aria-pressed="false"] .sound-state {
+  text-decoration: line-through;
+}
+
+html:not(.js) .sound-btn,
+.sound-btn[hidden] {
+  display: none;
+}
+
 /* Letters split apart for the crash: inline-block so they can spin on their own */
 .shard-ltr {
   display: inline-block;
@@ -2025,7 +2061,7 @@ html.is-crashing body {
     grid-row: 2;
   }
 
-  .break-btn {
+  .header-actions {
     grid-column: 2;
     grid-row: 1;
   }
@@ -2211,4 +2247,205 @@ html.is-crashing body {
   78% { transform: translate(-50%, -100%) rotate(-3deg) translateX(2px); }
   82% { transform: translate(-50%, -100%) rotate(-1deg) translateX(-2px); }
   86% { transform: translate(-50%, -100%) rotate(-2deg); }
+}
+
+/* ------------------------------------------------------------
+   Bike ride (script.js adds .is-riding when the reader stops scrolling).
+   He crosses the bottom of the screen left to right; only transforms
+   and opacity animate, so it stays cheap for the browser.
+------------------------------------------------------------ */
+.rider {
+  position: fixed;
+  bottom: 0.25rem;
+  left: 0;
+  z-index: 14;
+  width: clamp(8.5rem, 15vw, 13rem);
+  pointer-events: none;
+  visibility: hidden;
+  transform: translateX(-100%);
+  will-change: transform;
+}
+
+.rider.is-riding {
+  visibility: visible;
+  animation: ride-across var(--ride-time, 8000ms) linear forwards;
+}
+
+@keyframes ride-across {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100vw); }
+}
+
+.rider-body {
+  display: block;
+}
+
+.rider-body svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* Bumping along the road */
+.rider.is-riding .rider-body {
+  animation: ride-bob 300ms ease-in-out infinite alternate;
+}
+
+@keyframes ride-bob {
+  to { transform: translateY(-2px); }
+}
+
+/* The wheels, cranks and legs are moved frame by frame in script.js, so the wheels roll
+   at the speed he travels and his feet stay on the pedals */
+
+/* He says something while he's in the middle of the screen */
+.rider-bubble {
+  position: absolute;
+  bottom: calc(100% - 0.5rem);
+  left: 50%;
+  width: max-content;
+  max-width: 15rem;
+  padding: 0.45rem 0.7rem;
+  border: 2px solid var(--navy);
+  background: var(--orange);
+  color: var(--navy);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.35;
+  opacity: 0;
+}
+
+.rider-bubble::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 1.25rem;
+  border: 7px solid transparent;
+  border-top-color: var(--navy);
+}
+
+.rider.is-riding .rider-bubble {
+  animation: ride-talk var(--ride-time, 8000ms) linear forwards;
+}
+
+@keyframes ride-talk {
+  0%, 25% { opacity: 0; transform: translateY(6px); }
+  30%, 68% { opacity: 1; transform: none; }
+  73%, 100% { opacity: 0; transform: none; }
+}
+
+/* Only one character on screen at a time: the guide steps away while he rides or flies by */
+.is-riding .guide,
+.is-flying .guide {
+  visibility: hidden;
+}
+
+/* ------------------------------------------------------------
+   Helicopter (script.js adds .is-flying when the reader stops scrolling,
+   taking turns with the bike ride, and moves it along its flight path).
+------------------------------------------------------------ */
+.heli {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 14;
+  width: clamp(9rem, 16vw, 14rem);
+  pointer-events: none;
+  visibility: hidden;
+  will-change: transform;
+}
+
+.heli.is-flying {
+  visibility: visible;
+}
+
+.heli svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* Main rotor seen from the side: the blade sweeps round, so it looks longer and shorter */
+.heli-blade {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.heli.is-flying .heli-blade {
+  animation: heli-blade 110ms linear infinite;
+}
+
+@keyframes heli-blade {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(0.12); }
+}
+
+.heli-tail {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.heli.is-flying .heli-tail {
+  animation: heli-tail 140ms linear infinite;
+}
+
+@keyframes heli-tail {
+  to { transform: rotate(360deg); }
+}
+
+/* Searchlight: switches on while it hovers in the middle and sweeps over the page */
+.heli-light {
+  opacity: 0;
+  transform-box: view-box;
+  transform-origin: 84px 142px;
+  transition: opacity 500ms ease;
+}
+
+.heli.is-hovering .heli-light {
+  opacity: 1;
+  animation: heli-sweep 2400ms ease-in-out infinite alternate;
+}
+
+@keyframes heli-sweep {
+  from { transform: rotate(-22deg); }
+  to { transform: rotate(16deg); }
+}
+
+/* The banner it tows, fluttering in the wind */
+.heli-banner {
+  position: absolute;
+  top: 89%;
+  left: 99%;
+  padding: 0.4rem 0.75rem;
+  border: 2px solid var(--navy);
+  background: var(--paper);
+  color: var(--navy);
+  box-shadow: 3px 3px 0 var(--navy);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform-origin: 0 50%;
+}
+
+.heli.is-flying .heli-banner {
+  animation: heli-flutter 700ms ease-in-out infinite alternate;
+}
+
+@keyframes heli-flutter {
+  from { transform: skewY(-2deg) rotate(1deg); }
+  to { transform: skewY(2deg) rotate(-1deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rider,
+  .heli {
+    display: none;
+  }
 }

@@ -2,6 +2,12 @@
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
+  // Plays one of the sound effects from sounds.js (does nothing if it isn't loaded)
+  function sound(name, arg) {
+    var sfx = window.siteSounds;
+    if (sfx && typeof sfx[name] === 'function') sfx[name](arg);
+  }
+
   var year = document.getElementById('year');
   if (year) year.textContent = new Date().getFullYear();
 
@@ -118,6 +124,7 @@
     bubble.setAttribute('aria-hidden', 'true');
     bubble.textContent = crying ? SAD_LINE : ANGRY_LINES[presses - 1];
     stage.appendChild(bubble);
+    sound('upset', crying);
     // wait a frame so the step away from the "H" has been applied before measuring
     requestAnimationFrame(placeAngryBubble);
   }
@@ -243,6 +250,14 @@
     // Glide at a steady pace, easing off just before the stop
     chars.forEach(function (svg) { svg.style.transition = 'transform ' + duration + 'ms cubic-bezier(0.3, 0, 0.55, 1)'; });
     stage.style.setProperty('--walk-x', '0px');
+    // Footsteps that travel across the speakers to where he stops (he's still at the start,
+    // so his stopping point is the walk distance further right)
+    var startBox = charBack.getBoundingClientRect();
+    var stopX = startBox.left + startBox.width / 2 + distance;
+    sound('walkIn', {
+      duration: duration,
+      toPan: Math.max(-1, Math.min(1, (stopX / window.innerWidth) * 2 - 1))
+    });
 
     // transitionend can be skipped (for example in a background tab), so a timer backs it up
     var arrived = false;
@@ -251,6 +266,7 @@
       arrived = true;
       chars.forEach(function (svg) { svg.style.transition = ''; });
       stage.classList.remove('is-moonwalk');
+      sound('lean');
       finishIntro();
       setTimeout(wave, 300);
     }
@@ -281,6 +297,8 @@
     if (reduceMotion || stage.classList.contains('is-waving')) return;
     if (stage.classList.contains('is-moonwalk') || !stage.classList.contains('char-ready')) return;
     stage.classList.add('is-waving');
+    sound('wave');
+    sound('hello');
   }
 
   if (stage && charHead && !reduceMotion) {
@@ -357,6 +375,13 @@
       return null;
     }
 
+    // He's hidden during the crash and the bike ride, so he makes no sound then
+    function guideSeen() {
+      var root = document.documentElement;
+      return !root.classList.contains('is-crashing') && !root.classList.contains('is-riding') &&
+        !root.classList.contains('is-flying');
+    }
+
     function clearPeekTimers() {
       peekTimers.forEach(clearTimeout);
       peekTimers = [];
@@ -368,6 +393,7 @@
 
     function duck() {
       clearPeekTimers();
+      if (guide.classList.contains('is-peeking')) sound('peekOut', !guideSeen());
       guide.classList.remove('is-peeking');
       bubble.classList.remove('is-shown');
       guide.style.removeProperty('--look-x');
@@ -405,6 +431,7 @@
       }
       guide.dataset.pose = section.dataset.pose || 'point';
       guide.classList.add('is-peeking');
+      if (guideSeen()) sound('peekIn', side);
       peekY = window.scrollY;
 
       if (reduceMotion) {
@@ -882,11 +909,13 @@
 
       var floor = crashEl('crash-floor');
       var floorTop = floor.getBoundingClientRect().top;
+      sound('press');
 
       // Reduced motion: nothing falls; he just gets bandaged, then angry
       if (reduceMotion) {
         floor.remove();
         document.documentElement.classList.add('is-hurt');
+        sound('ow');
         crashSay('Nice try. Nothing falls with reduced motion on, but I still got hurt.');
         crashLater(function () {
           crashHush();
@@ -902,7 +931,11 @@
         { duration: 300, easing: 'cubic-bezier(0.2, 0.7, 0.2, 1)' });
       crashEl('crash-flash').animate([{ opacity: 0.85 }, { opacity: 0 }], { duration: 220, fill: 'forwards' });
       crashShake(10);
-      crashLater(function () { collapse(floorTop); }, 120);
+      sound('shatter');
+      crashLater(function () {
+        collapse(floorTop);
+        sound('collapse', !!charAnim);
+      }, 120);
 
       // He hits the floor: shake, shards, crashStars, and the injuries appear
       crashLater(function () {
@@ -910,14 +943,20 @@
         document.documentElement.classList.add('is-hurt');
         var target = charAnim ? charBack.getBoundingClientRect() : null;
         burstShards(target ? target.left + target.width / 2 : window.innerWidth / 2, floorTop - 6);
+        sound('impact');
         if (charAnim) {
           crashShowStars();
           crashSay('Ow! …I think I broke it.');
+          sound('ow');
+          sound('dizzy');
         }
       }, 1450);
 
       crashLater(function () {
-        if (charAnim) crashSay("Hang on, I'll fix it…");
+        if (charAnim) {
+          crashSay("Hang on, I'll fix it…");
+          sound('tinker');
+        }
       }, 3100);
 
       // Rewind everything back into place
@@ -927,10 +966,12 @@
         floor.animate([{ transform: 'none' }, { transform: 'translateY(100%)' }],
           { duration: 300, delay: 300, easing: 'ease-in', fill: 'forwards' });
         rebuild();
+        sound('rebuild');
       }, 4500);
 
       crashLater(function () {
         crashFinish();
+        sound('fixed');
         getUpset(presses);
         if (breakStatus) breakStatus.textContent = 'The page is back together. The character says: ' + stage.querySelector('.angry-bubble').textContent;
       }, 5600);
@@ -945,6 +986,252 @@
     breakBtn.addEventListener('click', function () {
       if (!crashing && introDone) crash();
     });
+  }
+
+  /* ---- Bike ride: when the reader stops scrolling for a few seconds, the character rides
+     a bicycle across the bottom of the screen, and again every so often while they keep
+     reading. Only when the hero is out of view (so he's never on screen twice), never
+     during the crash, and not at all with reduced motion. The ride itself is pure CSS;
+     this only decides when it starts. ---- */
+  var rider = document.querySelector('.rider');
+
+  if (rider && stage && !reduceMotion) {
+    var IDLE_DELAY = 5000;   // how long the page has to sit still before the first ride
+    var RIDE_GAP = 20000;    // pause between rides while the reader keeps reading
+    var riderBubble = rider.querySelector('.rider-bubble');
+    var rideTimer;
+    var rideEndTimer;
+    var riding = false;
+    var stillAt = window.scrollY;
+
+    /* Pedalling. All numbers are in the SVG's own units. The crank turns around the bottom
+       bracket, each foot sits on its pedal, and the knee is placed so the thigh and shin
+       keep their lengths (two-bone IK from the hip on the saddle). The wheels turn exactly
+       as far as the bike travels, so they roll instead of skidding. */
+    var CRANK_X = 134, CRANK_Y = 164, CRANK_LEN = 13;
+    var HIP_X = 110, HIP_Y = 100, THIGH = 40, SHIN = 37;
+    var WHEEL_R = 37;   // outer edge of the tyre
+    var GEAR = 1.5;     // wheel turns per pedal turn
+    var VIEW_W = 200;   // width of the SVG viewBox
+    var rideSpokes = rider.querySelectorAll('.r-spokes');
+    var armNear = rider.querySelector('.r-arm-near');
+    var armFar = rider.querySelector('.r-arm-far');
+    var pedalNear = rider.querySelector('.r-pedal-near');
+    var pedalFar = rider.querySelector('.r-pedal-far');
+    var legNear = rider.querySelector('.r-leg-near');
+    var legFar = rider.querySelector('.r-leg-far');
+    var legs = [legNear, legFar].map(function (g) {
+      return { line: g.querySelector('.r-leg-line'), shoe: g.querySelector('.r-shoe') };
+    });
+    var rideStart = 0;
+    var rideSpeed = 0;     // SVG units per millisecond
+    var pedalFrame;
+
+    function num(n) { return Math.round(n * 100) / 100; }
+
+    function placeLeg(leg, pedalX, pedalY) {
+      // The ankle sits just behind and above the pedal, so the ball of the foot is on it
+      var ax = pedalX - 4, ay = pedalY - 10;
+      var dx = ax - HIP_X, dy = ay - HIP_Y;
+      var dist = Math.min(Math.sqrt(dx * dx + dy * dy), THIGH + SHIN - 0.01);
+      var along = (THIGH * THIGH - SHIN * SHIN + dist * dist) / (2 * dist);
+      var out = Math.sqrt(Math.max(0, THIGH * THIGH - along * along));
+      // Knee bends forward, towards the handlebars
+      var kx = HIP_X + (along * dx + out * dy) / dist;
+      var ky = HIP_Y + (along * dy - out * dx) / dist;
+      leg.line.setAttribute('d', 'M' + HIP_X + ' ' + HIP_Y + ' L' + num(kx) + ' ' + num(ky) +
+        ' L' + num(ax) + ' ' + num(ay));
+      leg.shoe.setAttribute('transform', 'translate(' + num(ax) + ' ' + num(ay) + ')');
+    }
+
+    function placePedal(arm, pedal, x, y) {
+      arm.setAttribute('d', 'M' + CRANK_X + ' ' + CRANK_Y + ' L' + num(x) + ' ' + num(y));
+      pedal.setAttribute('x', num(x - 6));
+      pedal.setAttribute('y', num(y - 2));
+    }
+
+    // wheelAngle in radians, clockwise (the way the wheels turn riding to the right)
+    function poseRider(wheelAngle) {
+      var crank = wheelAngle / GEAR;
+      var sx = Math.sin(crank) * CRANK_LEN, sy = -Math.cos(crank) * CRANK_LEN;
+      placePedal(armNear, pedalNear, CRANK_X + sx, CRANK_Y + sy);
+      placePedal(armFar, pedalFar, CRANK_X - sx, CRANK_Y - sy);
+      placeLeg(legs[0], CRANK_X + sx, CRANK_Y + sy);
+      placeLeg(legs[1], CRANK_X - sx, CRANK_Y - sy);
+      var deg = num((wheelAngle * 180 / Math.PI) % 360);
+      for (var i = 0; i < rideSpokes.length; i++) {
+        rideSpokes[i].setAttribute('transform', 'rotate(' + deg + ')');
+      }
+    }
+
+    function pedalStep(now) {
+      if (!riding) return;
+      var travelled = Math.max(0, now - rideStart) * rideSpeed;
+      poseRider(travelled / WHEEL_R);
+      pedalFrame = requestAnimationFrame(pedalStep);
+    }
+
+    poseRider(0);
+
+    function rideLine() {
+      var root = document.documentElement;
+      if (root.classList.contains('is-sad')) return '*sniff*… keep reading.';
+      if (root.classList.contains('is-angry')) return "Still mad. Keep reading.";
+      return "Just riding by. Keep reading!";
+    }
+
+    function canRide() {
+      var root = document.documentElement;
+      return !document.hidden &&
+        !root.classList.contains('is-crashing') &&
+        stage.getBoundingClientRect().bottom <= 0;
+    }
+
+    function scheduleRide(ms) {
+      clearTimeout(rideTimer);
+      stillAt = window.scrollY;
+      rideTimer = setTimeout(startRide, ms);
+    }
+
+    function endRide() {
+      clearTimeout(rideEndTimer);
+      cancelAnimationFrame(pedalFrame);
+      sound('rideStop');
+      rider.classList.remove('is-riding');
+      document.documentElement.classList.remove('is-riding');
+      riding = false;
+      scheduleRide(RIDE_GAP);
+    }
+
+    /* Helicopter: takes turns with the bike ride (helicopter first). It flies in from the
+       right, weaves across the page and slows down to hover in the middle with its
+       searchlight sweeping, then carries on off the left edge. The rotor sound follows
+       it across the speakers and gets louder as it comes closer. */
+    var heli = document.querySelector('.heli');
+    var heliBanner = heli && heli.querySelector('.heli-banner');
+    var nextShow = heli ? 'heli' : 'bike';
+    var flying = false;
+    var flightFrame;
+    var flightStart = 0;
+    var flightTime = 0;
+    var flightEndTimer;
+    var lastFlightX = null;
+    var lastFlightAt = 0;
+
+    function flightStep(now) {
+      if (!flying) return;
+      var t = Math.min(1, Math.max(0, (now - flightStart) / flightTime));
+      var W = window.innerWidth;
+      var H = window.innerHeight;
+      var w = heli.offsetWidth;
+      var trail = heliBanner ? heliBanner.offsetWidth : 0;
+      // Fast at the edges, slowing to a hover in the middle (always moving left)
+      var p = t + 0.06 * Math.sin(2 * Math.PI * t);
+      var startX = W + 40;
+      var endX = -(w + trail + 80);
+      var x = startX + (endX - startX) * p + 0.05 * W * Math.sin(4 * Math.PI * p);
+      var y = H * (0.16 + 0.1 * Math.sin(3 * Math.PI * p + 0.6)) + 4 * Math.sin(now / 280);
+      // Nose dips the faster it goes (it flies nose first, to the left)
+      var speed = lastFlightX === null ? 0 : (lastFlightX - x) / Math.max(1, now - lastFlightAt);
+      var tilt = -Math.max(0, Math.min(12, speed * 50));
+      lastFlightX = x;
+      lastFlightAt = now;
+      heli.style.transform = 'translate(' + x.toFixed(1) + 'px, ' + y.toFixed(1) + 'px) rotate(' + tilt.toFixed(2) + 'deg)';
+      heli.classList.toggle('is-hovering', t > 0.33 && t < 0.67);
+
+      // Sound: fades in from far away, loudest while it's on screen, fades out leaving
+      var centre = x + w / 2;
+      var onScreen = Math.max(0, Math.min(1, 1.3 - Math.abs(centre / W - 0.5) * 1.6));
+      var level = Math.min(1, t / 0.12, (1 - t) / 0.12) * (0.35 + 0.65 * onScreen);
+      if (window.siteSounds && window.siteSounds.heliUpdate) window.siteSounds.heliUpdate((centre / W) * 2 - 1, level);
+
+      if (t >= 1) {
+        endFlight();
+        return;
+      }
+      flightFrame = requestAnimationFrame(flightStep);
+    }
+
+    function startFlight() {
+      flying = true;
+      riding = true;
+      flightTime = Math.round(Math.min(16000, Math.max(11000, window.innerWidth * 11)));
+      flightStart = performance.now();
+      lastFlightX = null;
+      heli.style.transform = 'translate(' + (window.innerWidth + 40) + 'px, ' + Math.round(window.innerHeight * 0.2) + 'px)';
+      document.documentElement.classList.add('is-flying');
+      heli.classList.add('is-flying');
+      sound('peekOut', true); // the guide is hidden while he flies: stop any rope creaks
+      sound('heliStart');
+      cancelAnimationFrame(flightFrame);
+      flightFrame = requestAnimationFrame(flightStep);
+      // requestAnimationFrame stops in a background tab, so a timer makes sure it ends
+      flightEndTimer = setTimeout(endFlight, flightTime + 300);
+    }
+
+    function endFlight() {
+      if (!flying) return;
+      flying = false;
+      clearTimeout(flightEndTimer);
+      cancelAnimationFrame(flightFrame);
+      sound('heliStop');
+      heli.classList.remove('is-flying', 'is-hovering');
+      document.documentElement.classList.remove('is-flying');
+      riding = false;
+      scheduleRide(RIDE_GAP);
+    }
+
+    function startRide() {
+      if (riding) return;
+      // The page moved since the countdown began (a scroll whose event hasn't arrived yet):
+      // the reader isn't sitting still, so start counting again
+      if (window.scrollY !== stillAt || !canRide()) {
+        scheduleRide(IDLE_DELAY);
+        return;
+      }
+      if (nextShow === 'heli') {
+        nextShow = 'bike';
+        startFlight();
+        return;
+      }
+      if (heli) nextShow = 'heli';
+      riding = true;
+      // Same speed on any screen: about 6.5ms per pixel of width, between 5 and 9 seconds
+      var time = Math.round(Math.min(9000, Math.max(5000, window.innerWidth * 6.5)));
+      rider.style.setProperty('--ride-time', time + 'ms');
+      riderBubble.textContent = rideLine();
+      document.documentElement.classList.add('is-riding');
+      rider.classList.add('is-riding');
+      // He crosses from just off the left edge to just off the right edge (ride-across),
+      // so the distance is the screen width plus his own width, in SVG units
+      var riderWidth = rider.offsetWidth || 1;
+      rideSpeed = (window.innerWidth + riderWidth) / time * (VIEW_W / riderWidth);
+      rideStart = performance.now();
+      sound('peekOut', true); // the guide is hidden while he rides: stop any rope creaks
+      sound('rideStart', { time: time });
+      cancelAnimationFrame(pedalFrame);
+      pedalFrame = requestAnimationFrame(pedalStep);
+      // animationend can be skipped (for example in a background tab), so a timer backs it up
+      rideEndTimer = setTimeout(endRide, time + 200);
+    }
+
+    rider.addEventListener('animationend', function (e) {
+      if (e.target === rider && e.animationName === 'ride-across') endRide();
+    });
+
+    // Any scrolling or typing resets the countdown; an active ride just carries on
+    ['scroll', 'keydown', 'touchstart'].forEach(function (type) {
+      window.addEventListener(type, function () {
+        if (!riding) scheduleRide(IDLE_DELAY);
+      }, { passive: true });
+    });
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) clearTimeout(rideTimer);
+      else if (!riding) scheduleRide(IDLE_DELAY);
+    });
+
+    scheduleRide(IDLE_DELAY);
   }
 
   /* ---- Fade sections in as they scroll into view ---- */

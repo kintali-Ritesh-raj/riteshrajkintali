@@ -1,0 +1,13 @@
+Sound effects used by sounds.js.
+
+Provided by the site owner
+  bike-bell.mp3: the bike's bell ringing as he rides by
+  helicopter-loop.wav: a seamless 10-second loop made from the owner's helicopter.mp3
+
+Kenney (www.kenney.nl), Creative Commons Zero (CC0), free to use with no credit required.
+They were trimmed, mixed to mono and level-matched for the site.
+  "Impact Sounds" pack: step-*, tiptoe-*, hop, tin-*, metal, glass-*, plank, wood-*,
+  plate, bit-*, thud, punch, stomp, ding
+  "RPG Audio" pack: cloth-*, creak-*, click, latch
+
+The "Hello!" when the character waves is spoken by the browser's built-in voice.
