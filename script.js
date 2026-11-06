@@ -298,7 +298,6 @@
     if (stage.classList.contains('is-moonwalk') || !stage.classList.contains('char-ready')) return;
     stage.classList.add('is-waving');
     sound('wave');
-    sound('hello');
   }
 
   if (stage && charHead && !reduceMotion) {

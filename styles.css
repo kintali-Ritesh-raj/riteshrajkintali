@@ -754,6 +754,17 @@ html:not(.js) .guide {
   max-width: 24ch;
 }
 
+.hero-intro {
+  display: grid;
+  gap: 1rem;
+}
+
+.hero-about {
+  max-width: 58ch;
+  font-size: clamp(1rem, 1.4vw, 1.125rem);
+  line-height: 1.6;
+}
+
 .hero-links {
   display: flex;
   flex-wrap: wrap;
@@ -1134,6 +1145,37 @@ html:not(.js) .work-icon {
 .case-link {
   margin-top: 0.5rem;
   font-weight: 600;
+}
+
+.case-shots {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.case-shot {
+  margin: 0;
+}
+
+.case-shot a {
+  display: block;
+  cursor: zoom-in;
+}
+
+.case-shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: #fff;
+}
+
+.case-shot figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  opacity: 0.75;
 }
 
 .case-body {

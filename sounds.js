@@ -153,19 +153,6 @@
     setTimeout(function () { bus.disconnect(); }, 900);
   }
 
-  // The voice for "Hello!": Indian English if the device has one, then a natural-sounding
-  // English voice, then any English voice
-  function helloVoice() {
-    var voices = window.speechSynthesis.getVoices() || [];
-    var english = voices.filter(function (v) { return /^en[-_]/i.test(v.lang); });
-    return english.filter(function (v) { return /^en[-_]IN/i.test(v.lang); })[0] ||
-      english.filter(function (v) { return /google|natural|online/i.test(v.name); })[0] ||
-      english[0] || null;
-  }
-
-  // Some browsers load their voices a moment after the page does
-  if (window.speechSynthesis && window.speechSynthesis.getVoices) window.speechSynthesis.getVoices();
-
   var STEPS = ['step-1', 'step-2', 'step-3', 'step-4'];
   var CLOTH = ['cloth-1', 'cloth-2', 'cloth-3', 'cloth-4'];
   var CREAKS = ['creak-1', 'creak-2', 'creak-3'];
@@ -284,21 +271,6 @@
     lean: function () {
       if (!ready()) return;
       play('cloth-4', { vol: 0.45 });
-    },
-
-    // He says "Hello!" out loud when he waves, in the browser's own voice
-    hello: function () {
-      if (!ready() || !window.speechSynthesis || !window.SpeechSynthesisUtterance) return;
-      var synth = window.speechSynthesis;
-      if (synth.speaking || synth.pending) return;
-      var line = new SpeechSynthesisUtterance('Hello!');
-      var voice = helloVoice();
-      if (voice) line.voice = voice;
-      line.lang = voice ? voice.lang : 'en-US';
-      line.pitch = 1.15;
-      line.rate = 1;
-      line.volume = 0.9;
-      synth.speak(line);
     },
 
     // His arm swishing back and forth
@@ -435,7 +407,6 @@
       enabled = !!on;
       try { window.localStorage.setItem(STORE_KEY, enabled ? 'on' : 'off'); } catch (e) { /* storage blocked */ }
       if (master) master.gain.setTargetAtTime(enabled ? VOLUME : 0, ctx.currentTime, 0.02);
-      if (!enabled && window.speechSynthesis) window.speechSynthesis.cancel();
     }
   };
 

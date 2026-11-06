@@ -9,10 +9,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=4">
   <script>document.documentElement.classList.add('js');</script>
-  <script src="transition.js" defer></script>
-  <script src="resume.js" defer></script>
+  <script src="transition.js?v=4" defer></script>
+  <script src="resume.js?v=4" defer></script>
 </head>
 <body class="resume-page">
   <!-- Starts covering the page in white with a loader; transition.js opens it through a
@@ -56,7 +56,7 @@
 
         <section class="cv-section">
           <h2>Summary</h2>
-          <p>Web and app developer building practical tools for small businesses, and an AI engineer working on retrieval-augmented generation (RAG) projects. I work mostly with Python, Django, and Flutter. Looking for junior Python or backend roles.</p>
+          <p>Web and app developer building practical tools for small businesses, and an AI engineer working on retrieval-augmented generation (RAG) projects. I work with HTML, CSS, JavaScript, PHP and Flutter. Open to entry-level roles in software development and AI.</p>
         </section>
 
         <section class="cv-section">
@@ -87,22 +87,22 @@
           <h2>Projects</h2>
           <div class="cv-item">
             <div class="cv-item-head">
-              <h3>SLG Housekeeping website <span>· slghk.in</span></h3>
-              <p class="cv-date">Python · Django</p>
+              <h3>Business website</h3>
+              <p class="cv-date">HTML · CSS · JavaScript · PHP</p>
             </div>
             <ul>
-              <li>Built the business website, moved it from PHP to Django, and maintain it.</li>
+              <li>Built the whole website on my own, front end and back end, and hosted it on Hostinger.</li>
               <li>[One line on the result for the business.]</li>
             </ul>
           </div>
           <div class="cv-item">
             <div class="cv-item-head">
-              <h3>[RAG project name]</h3>
-              <p class="cv-date">Python · RAG · [LLM, vector database]</p>
+              <h3>AgriDoc RAG <span>· Farm advice in English and Telugu</span></h3>
+              <p class="cv-date">Python · Gemma · BGE-M3 · FAISS · Gradio</p>
             </div>
             <ul>
-              <li>[What it answers questions about, and who uses it.]</li>
-              <li>[How it works: e.g. chunking, embeddings, vector search, LLM answer.]</li>
+              <li>Built a question-answering app that gives farmers advice from 30+ agriculture PDFs, in English or Telugu, and shows the pages behind every answer.</li>
+              <li>Wrote a re-ranking step that matches symptoms to plant parts; found the right document for 94 of 98 test questions, running on a 4 GB laptop GPU.</li>
             </ul>
           </div>
           <div class="cv-item">
@@ -129,8 +129,8 @@
         <section class="cv-section">
           <h2>Skills</h2>
           <dl class="cv-skills">
-            <div><dt>Backend</dt><dd>Python, Django, PHP (maintenance and migration), [database]</dd></div>
-            <div><dt>AI</dt><dd>RAG, [LLM APIs], [embeddings and vector databases], [LangChain or LlamaIndex]</dd></div>
+            <div><dt>Backend</dt><dd>PHP, [database]</dd></div>
+            <div><dt>AI</dt><dd>RAG, Gemma, BGE-M3 embeddings, FAISS, Gradio</dd></div>
             <div><dt>Frontend</dt><dd>HTML, CSS, JavaScript</dd></div>
             <div><dt>Mobile</dt><dd>Flutter, Dart</dd></div>
             <div><dt>Tools</dt><dd>Git and GitHub, Google Apps Script, Google Sheets and Forms</dd></div>
