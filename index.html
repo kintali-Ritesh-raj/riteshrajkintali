@@ -9,11 +9,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="styles.css?v=13">
   <script>document.documentElement.classList.add('js');</script>
-  <script src="transition.js?v=4" defer></script>
-  <script src="sounds.js?v=4" defer></script>
-  <script src="script.js?v=4" defer></script>
+  <script src="transition.js?v=13" defer></script>
+  <script src="sounds.js?v=13" defer></script>
+  <script src="script.js?v=13" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -47,11 +47,6 @@
     <!-- Hero -->
     <section class="hero" id="top" aria-labelledby="hero-name">
       <div class="wrap">
-        <div class="hero-top reveal">
-          <span>AI engineer · Web and app developer</span>
-          <span>JavaScript · PHP · RAG · Flutter</span>
-        </div>
-
         <div class="hero-stage">
           <!--
             The character, drawn from Ritesh's illustration. While he moonwalks in he sits behind
@@ -202,7 +197,15 @@
                   </div>
                   <div>
                     <dt>Tools</dt>
-                    <dd class="tools">HTML · CSS · JavaScript · PHP · Hostinger</dd>
+                    <dd>
+                      <ul class="skill-list skill-list--small">
+                        <li><img class="skill-icon" src="images/skills/html5.svg" alt="" width="24" height="24">HTML</li>
+                        <li><img class="skill-icon" src="images/skills/css3.svg" alt="" width="24" height="24">CSS</li>
+                        <li><img class="skill-icon" src="images/skills/javascript.svg" alt="" width="24" height="24">JavaScript</li>
+                        <li><img class="skill-icon" src="images/skills/php.svg" alt="" width="24" height="24">PHP</li>
+                        <li><img class="skill-icon" src="images/skills/hostinger.svg" alt="" width="24" height="24">Hostinger</li>
+                      </ul>
+                    </dd>
                   </div>
                   <div>
                     <dt>Challenges</dt>
@@ -259,7 +262,18 @@
                   </div>
                   <div>
                     <dt>Tools</dt>
-                    <dd class="tools">Python · Gemma 3 (1B) · BGE-M3 embeddings · FAISS · PyMuPDF · Gradio</dd>
+                    <dd>
+                      <ul class="skill-list skill-list--small">
+                        <li><img class="skill-icon" src="images/skills/python.svg" alt="" width="24" height="24">Python</li>
+                        <li><img class="skill-icon" src="images/skills/pytorch.svg" alt="" width="24" height="24">PyTorch</li>
+                        <li><img class="skill-icon" src="images/skills/huggingface.svg" alt="" width="24" height="24">Hugging Face</li>
+                        <li><svg class="skill-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2l2.2 6.6L21 11l-6.8 2.4L12 20l-2.2-6.6L3 11l6.8-2.4z" fill="#f97316"/></svg>Gemma 3 (1B)</li>
+                        <li><svg class="skill-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2l2.2 6.6L21 11l-6.8 2.4L12 20l-2.2-6.6L3 11l6.8-2.4z" fill="#f97316"/></svg>BGE-M3</li>
+                        <li><svg class="skill-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2l2.2 6.6L21 11l-6.8 2.4L12 20l-2.2-6.6L3 11l6.8-2.4z" fill="#f97316"/></svg>FAISS</li>
+                        <li><svg class="skill-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2l2.2 6.6L21 11l-6.8 2.4L12 20l-2.2-6.6L3 11l6.8-2.4z" fill="#f97316"/></svg>PyMuPDF</li>
+                        <li><svg class="skill-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2l2.2 6.6L21 11l-6.8 2.4L12 20l-2.2-6.6L3 11l6.8-2.4z" fill="#f97316"/></svg>Gradio</li>
+                      </ul>
+                    </dd>
                   </div>
                   <div>
                     <dt>Challenges</dt>
@@ -278,84 +292,12 @@
             </div>
           </li>
 
-          <li class="work-item reveal" data-preview-title="Attendance tracker" data-preview-meta="Google Forms · Sheets · Apps Script">
-            <h3 class="work-heading">
-              <button class="work-toggle" type="button" aria-expanded="false" aria-controls="case-attendance">
-                <span class="work-num">03</span>
-                <span class="work-name">Attendance tracker</span>
-                <span class="work-meta">Daily workers · Google Workspace</span>
-                <span class="work-icon" aria-hidden="true"></span>
-              </button>
-            </h3>
-            <div class="work-panel" id="case-attendance">
-              <div class="work-panel-inner">
-                <p class="case-role"><span class="label">My role</span> [Your role, e.g. built it on my own for a client.]</p>
-                <p class="case-link">[Link to a demo, screenshots, or write-up]</p>
-                <dl class="case-body">
-                  <div>
-                    <dt>Problem</dt>
-                    <dd>[How attendance was recorded before, and what went wrong with it.]</dd>
-                  </div>
-                  <div>
-                    <dt>Who it was for</dt>
-                    <dd>[The business or team, and who fills in attendance: workers, supervisors, or both.]</dd>
-                  </div>
-                  <div>
-                    <dt>What I built</dt>
-                    <dd>A daily attendance tracker on Google Workspace. A Google Form collects each day's attendance, responses go into a Google Sheet, and Apps Script [what your script does, e.g. builds summaries, flags missing entries, or sends reports].</dd>
-                  </div>
-                  <div>
-                    <dt>Tools</dt>
-                    <dd class="tools">Google Forms · Google Sheets · Apps Script</dd>
-                  </div>
-                  <div>
-                    <dt>Challenges</dt>
-                    <dd>[What was hard, such as duplicate submissions, people forgetting to submit, or Apps Script limits.]</dd>
-                  </div>
-                  <div>
-                    <dt>What I changed</dt>
-                    <dd>[What you changed after people started using it, based on their feedback.]</dd>
-                  </div>
-                  <div>
-                    <dt>Result</dt>
-                    <dd>[What happened after it was in use. Only include results you can back up.]</dd>
-                  </div>
-                </dl>
-              </div>
-            </div>
-          </li>
-
           <!--
             ADD NEW PROJECTS HERE.
             Copy one of the <li class="work-item"> blocks above, paste it here,
             change the number, the data-preview-* text, and the id / aria-controls
-            pair (they must match and be unique). Then delete the placeholder below.
+            pair (they must match and be unique).
           -->
-          <li class="work-item work-item--placeholder reveal" data-preview-title="[Project name]" data-preview-meta="[Tools]">
-            <h3 class="work-heading">
-              <button class="work-toggle" type="button" aria-expanded="false" aria-controls="case-next">
-                <span class="work-num">04</span>
-                <span class="work-name">[Project name]</span>
-                <span class="work-meta">[Type · stack]</span>
-                <span class="work-icon" aria-hidden="true"></span>
-              </button>
-            </h3>
-            <div class="work-panel" id="case-next">
-              <div class="work-panel-inner">
-                <p class="case-role"><span class="label">My role</span> [Your role]</p>
-                <p class="case-link">[Link]</p>
-                <dl class="case-body">
-                  <div><dt>Problem</dt><dd>[Problem]</dd></div>
-                  <div><dt>Who it was for</dt><dd>[Who it was for]</dd></div>
-                  <div><dt>What I built</dt><dd>[What you built]</dd></div>
-                  <div><dt>Tools</dt><dd class="tools">[Tools]</dd></div>
-                  <div><dt>Challenges</dt><dd>[Challenges]</dd></div>
-                  <div><dt>What I changed</dt><dd>[What you changed]</dd></div>
-                  <div><dt>Result</dt><dd>[Result]</dd></div>
-                </dl>
-              </div>
-            </div>
-          </li>
 
         </ol>
       </div>
@@ -370,24 +312,70 @@
       <div class="section-body">
         <dl class="skills reveal">
           <div>
+            <dt>Languages</dt>
+            <dd>
+              <ul class="skill-list">
+                <li><img class="skill-icon" src="images/skills/python.svg" alt="" width="24" height="24">Python</li>
+                <li><img class="skill-icon" src="images/skills/javascript.svg" alt="" width="24" height="24">JavaScript</li>
+                <li><img class="skill-icon" src="images/skills/typescript.svg" alt="" width="24" height="24">TypeScript</li>
+                <li><img class="skill-icon" src="images/skills/php.svg" alt="" width="24" height="24">PHP</li>
+                <li><img class="skill-icon" src="images/skills/dart.svg" alt="" width="24" height="24">Dart</li>
+                <li><img class="skill-icon" src="images/skills/mysql.svg" alt="" width="24" height="24">SQL</li>
+              </ul>
+            </dd>
+          </div>
+          <div>
             <dt>Frontend</dt>
-            <dd>HTML / CSS / JavaScript</dd>
+            <dd>
+              <ul class="skill-list">
+                <li><img class="skill-icon" src="images/skills/html5.svg" alt="" width="24" height="24">HTML</li>
+                <li><img class="skill-icon" src="images/skills/css3.svg" alt="" width="24" height="24">CSS</li>
+                <li><img class="skill-icon" src="images/skills/react.svg" alt="" width="24" height="24">React</li>
+                <li><img class="skill-icon" src="images/skills/tailwindcss.svg" alt="" width="24" height="24">Tailwind CSS</li>
+                <li><img class="skill-icon" src="images/skills/bootstrap.svg" alt="" width="24" height="24">Bootstrap</li>
+                <li><img class="skill-icon" src="images/skills/flutter.svg" alt="" width="24" height="24">Flutter</li>
+              </ul>
+            </dd>
           </div>
           <div>
             <dt>Backend</dt>
-            <dd>PHP / [Database, e.g. MySQL]</dd>
+            <dd>
+              <ul class="skill-list">
+                <li><img class="skill-icon" src="images/skills/flask.svg" alt="" width="24" height="24">Flask</li>
+                <li><img class="skill-icon" src="images/skills/fastapi.svg" alt="" width="24" height="24">FastAPI</li>
+                <li><svg class="skill-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2l2.2 6.6L21 11l-6.8 2.4L12 20l-2.2-6.6L3 11l6.8-2.4z" fill="#f97316"/></svg>REST APIs</li>
+                <li><img class="skill-icon" src="images/skills/mysql.svg" alt="" width="24" height="24">MySQL</li>
+              </ul>
+            </dd>
           </div>
           <div>
-            <dt>AI</dt>
-            <dd>RAG / Gemma / BGE-M3 embeddings / FAISS / Gradio</dd>
-          </div>
-          <div>
-            <dt>Mobile</dt>
-            <dd>Flutter / Dart</dd>
+            <dt>AI and data</dt>
+            <dd>
+              <ul class="skill-list">
+                <li><img class="skill-icon" src="images/skills/langchain.svg" alt="" width="24" height="24">LangChain</li>
+                <li><img class="skill-icon" src="images/skills/openai.svg" alt="" width="24" height="24">OpenAI API</li>
+                <li><img class="skill-icon" src="images/skills/googlegemini.svg" alt="" width="24" height="24">Gemini API</li>
+                <li><img class="skill-icon" src="images/skills/huggingface.svg" alt="" width="24" height="24">Hugging Face</li>
+                <li><img class="skill-icon" src="images/skills/pytorch.svg" alt="" width="24" height="24">PyTorch</li>
+                <li><img class="skill-icon" src="images/skills/scikitlearn.svg" alt="" width="24" height="24">scikit-learn</li>
+                <li><img class="skill-icon" src="images/skills/numpy.svg" alt="" width="24" height="24">NumPy</li>
+                <li><img class="skill-icon" src="images/skills/pandas.svg" alt="" width="24" height="24">Pandas</li>
+                <li><svg class="skill-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2l2.2 6.6L21 11l-6.8 2.4L12 20l-2.2-6.6L3 11l6.8-2.4z" fill="#f97316"/></svg>RAG</li>
+                <li><svg class="skill-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2l2.2 6.6L21 11l-6.8 2.4L12 20l-2.2-6.6L3 11l6.8-2.4z" fill="#f97316"/></svg>FAISS</li>
+              </ul>
+            </dd>
           </div>
           <div>
             <dt>Tools</dt>
-            <dd>Git and GitHub / Google Apps Script / Google Sheets and Forms</dd>
+            <dd>
+              <ul class="skill-list">
+                <li><img class="skill-icon" src="images/skills/git.svg" alt="" width="24" height="24">Git</li>
+                <li><img class="skill-icon" src="images/skills/github.svg" alt="" width="24" height="24">GitHub</li>
+                <li><img class="skill-icon" src="images/skills/postman.svg" alt="" width="24" height="24">Postman</li>
+                <li><img class="skill-icon" src="images/skills/vscode.svg" alt="" width="24" height="24">VS Code</li>
+                <li><img class="skill-icon" src="images/skills/jupyter.svg" alt="" width="24" height="24">Jupyter</li>
+              </ul>
+            </dd>
           </div>
         </dl>
       </div>
@@ -400,8 +388,17 @@
         <h2 id="contact-title">Contact</h2>
       </header>
       <div class="section-body reveal">
-        <p class="contact-lede">I'm open to entry-level roles in software development and AI. Email is the best way to reach me.</p>
-        <a class="contact-email" href="mailto:riteshrajkintali@gmail.com">riteshrajkintali@gmail.com</a>
+        <p class="contact-lede">I'm open to entry-level roles in software development and AI. If you're hiring, or just want to talk about a project, I'd be glad to hear from you.</p>
+        <dl class="contact-details">
+          <div>
+            <dt>Email</dt>
+            <dd><a class="contact-value" href="mailto:riteshrajkintali@gmail.com" data-copy="riteshrajkintali@gmail.com">riteshrajkintali@gmail.com</a><span class="contact-copied" aria-live="polite"></span></dd>
+          </div>
+          <div>
+            <dt>Phone</dt>
+            <dd><a class="contact-value" href="tel:+917995822719" data-copy="+91 79958 22719">+91 79958 22719</a><span class="contact-copied" aria-live="polite"></span></dd>
+          </div>
+        </dl>
         <ul class="contact-links">
           <li><a href="https://github.com/kintali-Ritesh-raj">GitHub <span aria-hidden="true">↗</span></a></li>
           <li><a href="https://www.linkedin.com/in/ritesh-raj-kintali-69a182318/">LinkedIn <span aria-hidden="true">↗</span></a></li>

@@ -110,7 +110,6 @@ a:hover {
 .label,
 .section-num,
 .nav-list,
-.hero-top,
 .work-num,
 .work-meta,
 dt,
@@ -175,16 +174,6 @@ dt,
 ------------------------------------------------------------ */
 .hero {
   padding-top: clamp(1.5rem, 5vw, 3.5rem);
-}
-
-.hero-top {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 0.5rem 1.5rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid var(--navy);
-  font-size: 0.75rem;
 }
 
 .hero-stage {
@@ -1198,9 +1187,18 @@ html:not(.js) .work-icon {
   max-width: 62ch;
 }
 
-.case-body .tools {
-  font-family: var(--font-mono);
-  font-size: 0.9375rem;
+.skill-list.skill-list--small {
+  gap: 0.5rem;
+}
+
+.skill-list.skill-list--small li {
+  padding: 0.35rem 0.8rem 0.35rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.skill-list.skill-list--small .skill-icon {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 @media (min-width: 40rem) {
@@ -1293,18 +1291,46 @@ html:not(.js) .preview {
 }
 
 .skills dd {
-  font-family: var(--font-display);
-  font-size: clamp(1.35rem, 3.2vw, 2.25rem);
-  font-weight: 800;
-  font-stretch: 70%;
-  line-height: 1.1;
-  text-transform: uppercase;
+  margin: 0;
+}
+
+.skill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.skill-list li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.9rem 0.45rem 0.6rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  line-height: 1.2;
+  transition: border-color 200ms var(--ease), transform 200ms var(--ease);
+}
+
+.skill-list li:hover {
+  border-color: var(--orange);
+  transform: translateY(-2px);
+}
+
+.skill-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: none;
 }
 
 @media (min-width: 40rem) {
   .skills > div {
     grid-template-columns: 9rem 1fr;
-    align-items: baseline;
+    align-items: center;
     gap: 1.5rem;
   }
 }
@@ -1313,30 +1339,71 @@ html:not(.js) .preview {
    Contact + footer
 ------------------------------------------------------------ */
 .contact-lede {
-  max-width: 44ch;
+  max-width: 46ch;
   font-size: 1.125rem;
+  line-height: 1.6;
 }
 
-.contact-email {
-  display: inline-block;
-  margin-top: 1.25rem;
-  font-family: var(--font-display);
-  font-size: clamp(1.75rem, 7.5vw, 5.5rem);
-  font-weight: 900;
-  font-stretch: 62%;
-  line-height: 1;
+.contact-details {
+  display: grid;
+  gap: 1.25rem;
+  margin: 1.75rem 0 0;
+}
+
+.contact-details dt {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  text-decoration-thickness: 0.08em;
-  text-underline-offset: 0.12em;
+  color: var(--orange-text);
+}
+
+.contact-details dd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  margin: 0.25rem 0 0;
+}
+
+.contact-value {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 3vw, 1.875rem);
+  font-weight: 700;
+  line-height: 1.2;
+  text-underline-offset: 0.18em;
   overflow-wrap: anywhere;
+}
+
+.contact-copied {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 .contact-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem 1.5rem;
+  gap: 0.75rem;
   margin-top: 2rem;
+  padding: 0;
+  list-style: none;
   font-weight: 600;
+}
+
+.contact-links a {
+  display: inline-block;
+  padding: 0.6rem 1.1rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  text-decoration: none;
+  transition: border-color 200ms var(--ease), color 200ms var(--ease);
+}
+
+.contact-links a:hover {
+  border-color: var(--orange);
 }
 
 .site-footer {

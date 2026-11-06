@@ -8,6 +8,47 @@
     if (sfx && typeof sfx[name] === 'function') sfx[name](arg);
   }
 
+  /* ---- Contact: clicking the email or phone number copies it ---- */
+  // Older way of copying, for browsers that block the clipboard API
+  function copyFallback(text) {
+    var area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.position = 'fixed';
+    area.style.opacity = '0';
+    document.body.appendChild(area);
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).catch(function () {
+        if (!copyFallback(text)) throw new Error('copy blocked');
+      });
+    }
+    return copyFallback(text) ? Promise.resolve() : Promise.reject(new Error('copy blocked'));
+  }
+
+  document.querySelectorAll('.contact-value').forEach(function (link) {
+    var note = link.nextElementSibling;
+    var timer;
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      copyText(link.dataset.copy).then(function () {
+        note.textContent = 'Copied';
+        clearTimeout(timer);
+        timer = setTimeout(function () { note.textContent = ''; }, 2000);
+      }, function () {
+        // copying blocked everywhere: open the mail app or dialler instead
+        window.location.href = link.href;
+      });
+    });
+  });
+
   var year = document.getElementById('year');
   if (year) year.textContent = new Date().getFullYear();
 
